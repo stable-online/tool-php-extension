@@ -1,2 +1,2 @@
-# php-tool-functions
+# tool-php-extension
 php tool functions
