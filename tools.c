@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author: 赵巍
+  | Author: zhaowei
   | email: 2426595849@qq.com
   +----------------------------------------------------------------------+
 */
