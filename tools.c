@@ -12,7 +12,8 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author: 赵巍                                                              |
+  | Author: 赵巍
+  | email: 2426595849@qq.com
   +----------------------------------------------------------------------+
 */
 
@@ -27,12 +28,7 @@
 #include "ext/standard/info.h"
 #include "php_tools.h"
 #include "tool_lib.c"
-/* If you declare any globals in php_tools.h uncomment this:
-ZEND_DECLARE_MODULE_GLOBALS(tools)
-*/
-
-/* True global resources - no need for thread safety here */
-static int le_tools;
+#include "ext/standard/php_string.h"
 
 /* {{{ PHP_INI
  */
@@ -106,6 +102,14 @@ zval *stringProperty(zval *object,char method[],size_t len) {
 }
 
 ZEND_METHOD(String, substr) {
+    zend_long  start;
+    zend_long  end;
+
+    ZEND_PARSE_PARAMETERS_START(1,2);
+        Z_PARAM_LONG(start)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_LONG(end)
+    ZEND_PARSE_PARAMETERS_END();
 
     zval tmp_soap;
     object_init_ex(&tmp_soap, String_Object_Tools);
@@ -114,10 +118,17 @@ ZEND_METHOD(String, substr) {
     zval *msg = stringProperty(Object,"property",sizeof("property")-1);
     zend_string *property = Z_STR_P(msg);
 
-    zval c_ret, constructor, parameter;
-    zend_string *result = strpprintf(0, "%s %s", property->val, "sss");
-    ZVAL_STRING(&parameter, result->val);
+    zval c_ret, constructor, parameter,substr,c_ret_2,param[3];
+    zend_string *result = strpprintf(0, "%s", property->val);
 
+    ZVAL_STRING(&param[0],property->val);
+    ZVAL_LONG(&param[1],start);
+    ZVAL_LONG(&param[2],end);
+    ZVAL_STRING(&substr,"substr");
+
+    call_user_function_ex(EG(function_table), NULL,&substr, &c_ret_2, 3, param, 1,NULL);
+
+    ZVAL_STRING(&parameter, c_ret_2.value.str->val);
     ZVAL_STRING(&constructor, ZEND_CONSTRUCTOR_FUNC_NAME);
     call_user_function(NULL, &tmp_soap, &constructor, &c_ret, 1, &parameter);
 
