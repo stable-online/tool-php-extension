@@ -107,11 +107,21 @@ zval *stringProperty(zval *object,char method[],size_t len) {
 
 ZEND_METHOD(String, substr) {
 
-    zend_update_property_string(String_Object_Tools, getThis(), "property", sizeof("property") - 1, "sss");
-    
-    zval *object = getThis();
+    zval tmp_soap;
+    object_init_ex(&tmp_soap, String_Object_Tools);
 
-    RETURN_OBJ(Z_OBJ_P(object));
+    zval *Object = getThis();
+    zval *msg = stringProperty(Object,"property",sizeof("property")-1);
+    zend_string *property = Z_STR_P(msg);
+
+    zval c_ret, constructor, parameter;
+    zend_string *result = strpprintf(0, "%s %s", property->val, "sss");
+    ZVAL_STRING(&parameter, result->val);
+
+    ZVAL_STRING(&constructor, ZEND_CONSTRUCTOR_FUNC_NAME);
+    call_user_function(NULL, &tmp_soap, &constructor, &c_ret, 1, &parameter);
+
+    RETURN_OBJ(Z_OBJ_P(&tmp_soap));
 }
 
 /* {{{ PHP_MINIT_FUNCTION
