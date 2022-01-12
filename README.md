@@ -20,12 +20,12 @@ echo "extension=geohash.so" >> /etc/php.ini
 
 ```php
 <?php
-    $str = new String("123456");
+  $str = new String("123456");
     
-     //Intercepting string behavior
-    echo $str->substr(0,3)->dd();//output:12
-    echo $str->substr(1,3)->dd();//output:234
+  //Intercepting string behavior
+  echo $str->substr(0,3)->dd();//output:12
+  echo $str->substr(1,3)->dd();//output:234
 ```
 
-##contact
+## contact
 e-mail: 2426594859@qq.com
