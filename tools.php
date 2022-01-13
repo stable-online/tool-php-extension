@@ -1,21 +1,7 @@
 <?php
-$br = (php_sapi_name() == "cli")? "":"<br>";
 
-if(!extension_loaded('tools')) {
-	dl('tools.' . PHP_SHLIB_SUFFIX);
-}
-$module = 'tools';
-$functions = get_extension_funcs($module);
-echo "Functions available in the test extension:$br\n";
-foreach($functions as $func) {
-    echo $func."$br\n";
-}
-echo "$br\n";
-$function = 'confirm_' . $module . '_compiled';
-if (extension_loaded($module)) {
-	$str = $function($module);
-} else {
-	$str = "Module $module is not compiled into PHP";
-}
-echo "$str\n";
-?>
+$str = new String("123456");
+echo $str->insert_head("--bb--")->substr(2)->insert_tail("--hello")->replace("hello","notlala")->value();
+//   echo $str->substr(1,3)->dump().PHP_EOL;//output:123
+//   echo $str->replace('23',"bbb")->dump();//1bbb456
+//   echo $str->substr(1,3)->dump();//output:23
