@@ -67,6 +67,7 @@ zend_function_entry string_function[] = {
         ZEND_ME(String, substr, NULL, ZEND_ACC_PUBLIC)
         ZEND_ME(String, replace, NULL, ZEND_ACC_PUBLIC)
         ZEND_ME(String, insert_tail, NULL, ZEND_ACC_PUBLIC)
+        ZEND_ME(String, insert_head, NULL, ZEND_ACC_PUBLIC)
         ZEND_FE_END
 };
 
@@ -184,6 +185,33 @@ ZEND_METHOD(String, insert_tail) {
     RETURN_OBJ(zend_objects_clone_obj(getThis()));
 }
 
+/**
+ * insert head behavior
+ * @param execute_data
+ * @param return_value
+ */
+ZEND_METHOD(String, insert_head) {
+
+    zend_string *user_string;
+
+    zval rv;
+    zend_class_entry *ce;
+    ce = Z_OBJCE_P(getThis());
+    zval c_ret, constructor, parameter, substr, c_ret_2, param[3];
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_STR(user_string)
+    ZEND_PARSE_PARAMETERS_END();
+
+    zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zend_string *string = zval_get_string(pStruct);
+    zval_dtor(pStruct);
+
+    zend_string *pString = strpprintf(0, "%s%s", user_string->val, string->val);
+    zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
+    efree(pString);
+    RETURN_OBJ(zend_objects_clone_obj(getThis()));
+}
 /**
  * string substr behavior
  * @param execute_data
