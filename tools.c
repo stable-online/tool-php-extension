@@ -27,7 +27,6 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "php_tools.h"
-#include "tool_lib.c"
 #include "ext/standard/php_string.h"
 
 /* {{{ PHP_INI
