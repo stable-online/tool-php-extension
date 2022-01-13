@@ -7,8 +7,11 @@ This is an extension of various common tools in PHP,New fun features will be add
 ## Install
 ```shell
 phpize
+
 ./configure --with-php-config=/path/to/php-config 
+
 make && make install
+
 echo "extension=tools.so" >> /etc/php.ini
 ```
 ### Example: 
