@@ -65,6 +65,7 @@ zend_function_entry string_function[] = {
         ZEND_ME(String, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
         ZEND_ME(String, dump, NULL, ZEND_ACC_PUBLIC)
         ZEND_ME(String, substr, NULL, ZEND_ACC_PUBLIC)
+        ZEND_ME(String, replace, NULL, ZEND_ACC_PUBLIC)
         ZEND_FE_END
 };
 
@@ -102,7 +103,57 @@ ZEND_METHOD(String, dump) {
     RETURN_STR(string);
 }
 
+/**
+ * string replace behavior
+ * @param execute_data
+ * @param return_value
+ */
+ZEND_METHOD(String,replace) {
 
+    zend_string *search;
+    zend_string *replace;
+    zval rv;
+    zend_class_entry *ce;
+    ce = Z_OBJCE_P(getThis());
+    zval c_ret, constructor, parameter, substr, c_ret_2, param[3];
+
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+            Z_PARAM_STR(search)
+            Z_PARAM_STR(replace)
+    ZEND_PARSE_PARAMETERS_END();
+
+    zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zend_string *string = zval_get_string(pStruct);
+    zval_dtor(pStruct);
+
+    ZVAL_STRING(&param[0], search->val);
+    ZVAL_STRING(&param[1], replace->val);
+    ZVAL_STRING(&param[2], string->val);
+
+    ZVAL_STRING(&substr, "str_replace");
+
+    if (call_user_function(NULL, NULL, &substr, &c_ret_2, 3, param) == FAILURE) {
+        php_printf("error{1}");
+    }
+
+    zval_dtor(&substr);
+    zval_dtor(&param[0]);
+    zval_dtor(&param[1]);
+    zval_dtor(&param[2]);
+    zend_string *pString = zval_get_string(&c_ret_2);
+    zval_dtor(&c_ret_2);
+
+    zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
+
+    efree(pString);
+    RETURN_OBJ(zend_objects_clone_obj(getThis()));
+}
+
+/**
+ * string substr behavior
+ * @param execute_data
+ * @param return_value
+ */
 ZEND_METHOD(String, substr) {
 
     zend_long start;

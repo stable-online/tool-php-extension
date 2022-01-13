@@ -26,7 +26,8 @@ echo "extension=tools.so" >> /etc/php.ini
   echo $str->substr(0,3)->dump();//output:123
   echo $str->substr(1,3)->dump();//output:23
 
-  
+  //2. replace string behavior  
+  echo $str->replace('23',"bbb")->dump();//output:1bbb456
 
 ```
 
