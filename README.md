@@ -2,7 +2,7 @@
 This is an extension of various common tools in PHP,New fun features will be added step by step,Look forward to it!!!
 
 ## Requirement
-- PHP 7.0+  (master branch))
+- PHP 7.0+  (PHP8 is not included))
 
 ## Install
 ```shell
@@ -32,7 +32,7 @@ echo "extension=tools.so" >> /etc/php.ini
   echo $str->insert_tail("--hello world")->value();//output:123456--hello world
 
   //4. insert content to string head behavior [ insert_head(string headString) ]
-  $str->insert_head("--bb--")->value();//output:--bb--123456
+  echo $str->insert_head("--bb--")->value();//output:--bb--123456
 ```
 
 ## contact
