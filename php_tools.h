@@ -24,9 +24,8 @@
  * @param execute_data
  * @param return_value
  */
-zval *stringProperty(zval *object,char method[],size_t len);
 ZEND_METHOD(String,__construct);
-ZEND_METHOD(String,dd);
+ZEND_METHOD(String,dump);
 ZEND_METHOD(String,substr);
 #define PHP_TOOLS_H
 

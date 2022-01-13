@@ -23,8 +23,8 @@ echo "extension=geohash.so" >> /etc/php.ini
   $str = new String("123456");
     
   //Intercepting string behavior
-  echo $str->substr(0,3)->dd();//output:12
-  echo $str->substr(1,3)->dd();//output:234
+  echo $str->substr(0,3)->dump();//output:123
+  echo $str->substr(1,3)->dump();//output:23
 ```
 
 ## contact

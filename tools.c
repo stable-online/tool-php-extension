@@ -63,7 +63,7 @@ static void php_tools_init_globals(zend_tools_globals *tools_globals)
 /* }}} */
 zend_function_entry string_function[] = {
         ZEND_ME(String, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-        ZEND_ME(String, dd, NULL, ZEND_ACC_PUBLIC)
+        ZEND_ME(String, dump, NULL, ZEND_ACC_PUBLIC)
         ZEND_ME(String, substr, NULL, ZEND_ACC_PUBLIC)
         ZEND_FE_END
 };
@@ -76,7 +76,7 @@ ZEND_METHOD(String, __construct) {
     ZEND_PARSE_PARAMETERS_START(1, 1);
             Z_PARAM_STR(string);
     ZEND_PARSE_PARAMETERS_END();
-    zend_update_property_string(String_Object_Tools, getThis(), "property", sizeof("property") - 1, ZSTR_VAL(string));
+    zend_update_property_string(String_Object_Tools, getThis(), "property", strlen("property"), ZSTR_VAL(string));
 }
 
 /**
@@ -84,55 +84,55 @@ ZEND_METHOD(String, __construct) {
  * @param execute_data
  * @param return_value
  */
-ZEND_METHOD(String, dd){
-    zval *Object = getThis();
-    zval *msg = stringProperty(Object,"property",sizeof("property")-1);
-    RETVAL_STR(Z_STR_P(msg));
+ZEND_METHOD(String, dump) {
+    zval *msg, rv;
+    zval *object = getThis();
+
+    zend_class_entry *ce;
+    ce = Z_OBJCE_P(getThis());
+    zend_string *string = zval_get_string(zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv));
+//    zval_dtor(object);
+
+    RETURN_STR(string);
 }
 
-/**
- * get current property value from object
- * @param object
- * @return
- */
-zval *stringProperty(zval *object,char method[],size_t len) {
-    zval *msg, rv;
-    msg = zend_read_property(Z_OBJCE_P(object), object, method, len, 0, &rv);
-    return msg;
-}
 
 ZEND_METHOD(String, substr) {
-    zend_long  start;
-    zend_long  end;
 
-    ZEND_PARSE_PARAMETERS_START(1,2);
-        Z_PARAM_LONG(start)
-        Z_PARAM_OPTIONAL
-        Z_PARAM_LONG(end)
-    ZEND_PARSE_PARAMETERS_END();
+    zend_long start;
+    zend_long end;
+    zval rv;
+    zend_class_entry *ce;
+    ce = Z_OBJCE_P(getThis());
+    zval c_ret, constructor, parameter, substr, c_ret_2, param[3];
 
-    zval tmp_soap;
-    object_init_ex(&tmp_soap, String_Object_Tools);
+    zend_parse_parameters(ZEND_NUM_ARGS(), "l|l", &start, &end);
 
-    zval *Object = getThis();
-    zval *msg = stringProperty(Object,"property",sizeof("property")-1);
-    zend_string *property = Z_STR_P(msg);
+    zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zend_string *string = zval_get_string(pStruct);
+    zval_dtor(pStruct);
 
-    zval c_ret, constructor, parameter,substr,c_ret_2,param[3];
-    zend_string *result = strpprintf(0, "%s", property->val);
+    ZVAL_STRING(&param[0], string->val);
+    ZVAL_LONG(&param[1], start);
+    ZVAL_LONG(&param[2], end);
 
-    ZVAL_STRING(&param[0],property->val);
-    ZVAL_LONG(&param[1],start);
-    ZVAL_LONG(&param[2],end);
-    ZVAL_STRING(&substr,"substr");
+    ZVAL_STRING(&substr, "substr");
 
-    call_user_function_ex(EG(function_table), NULL,&substr, &c_ret_2, 3, param, 1,NULL);
+    if (call_user_function(NULL, NULL, &substr, &c_ret_2, 3, param) == FAILURE) {
+        php_printf("error{1}");
+    }
 
-    ZVAL_STRING(&parameter, c_ret_2.value.str->val);
-    ZVAL_STRING(&constructor, ZEND_CONSTRUCTOR_FUNC_NAME);
-    call_user_function(NULL, &tmp_soap, &constructor, &c_ret, 1, &parameter);
+    zval_dtor(&substr);
+    zval_dtor(&param[0]);
+    zval_dtor(&param[1]);
+    zval_dtor(&param[2]);
+    zend_string *pString = zval_get_string(&c_ret_2);
+    zval_dtor(&c_ret_2);
 
-    RETURN_OBJ(Z_OBJ_P(&tmp_soap));
+    zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
+
+    efree(pString);
+    RETURN_OBJ(zend_objects_clone_obj(getThis()));
 }
 
 /* {{{ PHP_MINIT_FUNCTION
@@ -142,7 +142,7 @@ PHP_MINIT_FUNCTION (tools) {
     zend_class_entry String_Object;
     INIT_CLASS_ENTRY(String_Object, "String", string_function);
     String_Object_Tools = zend_register_internal_class(&String_Object);
-    zend_declare_property_string(String_Object_Tools, "property", sizeof("property") - 1, "", ZEND_ACC_PRIVATE);
+    zend_declare_property_string(String_Object_Tools, "property", strlen("property"), "", ZEND_ACC_PRIVATE);
 
     return SUCCESS;
 }
