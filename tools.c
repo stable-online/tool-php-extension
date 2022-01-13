@@ -71,12 +71,18 @@ zend_function_entry string_function[] = {
 zend_class_entry *String_Object_Tools;
 
 ZEND_METHOD(String, __construct) {
-    zend_string *string;
+    zval *string;
     int len;
     ZEND_PARSE_PARAMETERS_START(1, 1);
-            Z_PARAM_STR(string);
+            Z_PARAM_ZVAL(string);
     ZEND_PARSE_PARAMETERS_END();
-    zend_update_property_string(String_Object_Tools, getThis(), "property", strlen("property"), ZSTR_VAL(string));
+
+    if (Z_TYPE_P(string) != IS_STRING) {
+        php_error_docref(NULL, E_ERROR, "parameter must is string");
+        RETURN_FALSE;
+    }
+
+    zend_update_property_string(String_Object_Tools, getThis(), "property", strlen("property"), Z_STRVAL_P(string));
 }
 
 /**
@@ -106,7 +112,11 @@ ZEND_METHOD(String, substr) {
     ce = Z_OBJCE_P(getThis());
     zval c_ret, constructor, parameter, substr, c_ret_2, param[3];
 
-    zend_parse_parameters(ZEND_NUM_ARGS(), "l|l", &start, &end);
+    ZEND_PARSE_PARAMETERS_START(1, 2);
+            Z_PARAM_LONG(start)
+            Z_PARAM_OPTIONAL
+            Z_PARAM_LONG(end)
+    ZEND_PARSE_PARAMETERS_END();
 
     zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
     zend_string *string = zval_get_string(pStruct);
