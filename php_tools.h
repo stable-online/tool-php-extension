@@ -31,6 +31,7 @@ ZEND_METHOD(String,replace);
 ZEND_METHOD(String,insert_tail);
 ZEND_METHOD(String,insert_head);
 ZEND_METHOD(String,lower);
+ZEND_METHOD(String,upper);
 #define PHP_TOOLS_H
 
 extern zend_module_entry tools_module_entry;
