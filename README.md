@@ -10,7 +10,7 @@ This is an extension of various common tools in PHP
 phpize
 ./configure --with-php-config=/path/to/php-config 
 make && make install
-echo "extension=geohash.so" >> /etc/php.ini
+echo "extension=tools.so" >> /etc/php.ini
 ```
 ### Example: 
 
@@ -22,9 +22,12 @@ echo "extension=geohash.so" >> /etc/php.ini
 <?php
   $str = new String("123456");
     
-  //Intercepting string behavior
+  //1. substr string behavior
   echo $str->substr(0,3)->dump();//output:123
   echo $str->substr(1,3)->dump();//output:23
+
+  
+
 ```
 
 ## contact
