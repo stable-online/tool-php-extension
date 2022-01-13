@@ -25,9 +25,10 @@
  * @param return_value
  */
 ZEND_METHOD(String,__construct);
-ZEND_METHOD(String,dump);
+ZEND_METHOD(String,value);
 ZEND_METHOD(String,substr);
 ZEND_METHOD(String,replace);
+ZEND_METHOD(String,insert_tail);
 #define PHP_TOOLS_H
 
 extern zend_module_entry tools_module_entry;

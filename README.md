@@ -23,12 +23,16 @@ echo "extension=tools.so" >> /etc/php.ini
   $str = new String("123456");
     
   //1. substr string behavior
-  echo $str->substr(0,3)->dump();//output:123
-  echo $str->substr(1,3)->dump();//output:23
+  echo $str->substr(0,3)->value();//output:123
+  echo $str->substr(1,3)->value();//output:23
 
   //2. replace string behavior  
-  echo $str->replace('23',"bbb")->dump();//output:1bbb456
+  echo $str->replace('23',"bbb")->value();//output:1bbb456
 
+  //3. append content to string behavior 
+  echo $str->insertTail("--hello world")->value();//output:123456--hello world
+
+  
 ```
 
 ## contact
