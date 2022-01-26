@@ -92,34 +92,19 @@ ZEND_METHOD(String, upper){
     RETURN_OBJ(zend_objects_clone_obj(getThis()));
 }
 
-/**
- * take string exchange to Lowercase character
- * @param execute_data
- * @param return_value
- */
-ZEND_METHOD(String,lower){
 
+
+ZEND_METHOD(String, lower){
     zval rv;
     zend_class_entry *ce;
     ce = Z_OBJCE_P(getThis());
-    zval c_ret, constructor, parameter, strtolower, c_ret_2, param[1];
+    zval c_ret, constructor, parameter;
 
     zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
     zend_string *string = zval_get_string(pStruct);
     zval_dtor(pStruct);
 
-    ZVAL_STRING(&param[0], string->val);
-    ZVAL_STRING(&strtolower, "strtolower");
-
-    if (call_user_function(NULL, NULL, &strtolower, &c_ret_2, 1, param) == FAILURE) {
-        php_printf("error{1}");
-    }
-
-    zval_dtor(&strtolower);
-    zval_dtor(&param[0]);
-    zend_string *pString = zval_get_string(&c_ret_2);
-    zval_dtor(&c_ret_2);
-
+    zend_string *pString = strtolower(string);
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
 
     efree(pString);

@@ -34,3 +34,27 @@ zend_string *strtoupper(zval *pStruct) {
     zval_dtor(&c_ret_2);
     return pString;
 }
+
+/**
+ * take string exchange to Lowercase character
+ * @param execute_data
+ * @param return_value
+ */
+zend_string *strtolower(const zend_string *string);
+
+
+zend_string *strtolower(const zend_string *string) {
+    zval strtolower, c_ret_2, param[1];
+    ZVAL_STRING(&param[0], string->val);
+    ZVAL_STRING(&strtolower, "strtolower");
+
+    if (call_user_function(NULL, NULL, &strtolower, &c_ret_2, 1, param) == FAILURE) {
+        php_printf("error{1}");
+    }
+
+    zval_dtor(&strtolower);
+    zval_dtor(&param[0]);
+    zend_string *pString = zval_get_string(&c_ret_2);
+    zval_dtor(&c_ret_2);
+    return pString;
+}
