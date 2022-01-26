@@ -85,3 +85,18 @@ zend_string *str_replace(const zend_string *search, const zend_string *replace, 
     zval_dtor(&c_ret_2);
     return pString;
 }
+
+
+/**
+ * string append behavior
+ * @param execute_data
+ * @param return_value
+ */
+zend_string *insert_tail( zend_string *user_string,  zval *pStruct);
+
+zend_string *insert_tail( zend_string *user_string,  zval *pStruct) {
+    zend_string *string = zval_get_string(pStruct);
+    zval_dtor(pStruct);
+    zend_string *pString = strpprintf(0, "%s%s", string->val, user_string->val);
+    return pString;
+}
