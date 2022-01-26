@@ -58,3 +58,30 @@ zend_string *strtolower(const zend_string *string) {
     zval_dtor(&c_ret_2);
     return pString;
 }
+
+/**
+ * string replace behavior
+ * @param execute_data
+ * @param return_value
+ */
+zend_string *str_replace(const zend_string *search, const zend_string *replace, const zend_string *string);
+
+
+zend_string *str_replace(const zend_string *search, const zend_string *replace, const zend_string *string) {
+    zval substr, c_ret_2, param[3];
+    ZVAL_STRING(&param[0], search->val);
+    ZVAL_STRING(&param[1], replace->val);
+    ZVAL_STRING(&param[2], string->val);
+    ZVAL_STRING(&substr, "str_replace");
+
+    if (call_user_function(NULL, NULL, &substr, &c_ret_2, 3, param) == FAILURE) {
+        php_printf("error{1}");
+    }
+    zval_dtor(&substr);
+    zval_dtor(&param[0]);
+    zval_dtor(&param[1]);
+    zval_dtor(&param[2]);
+    zend_string *pString = zval_get_string(&c_ret_2);
+    zval_dtor(&c_ret_2);
+    return pString;
+}
