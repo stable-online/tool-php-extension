@@ -100,3 +100,18 @@ zend_string *insert_tail( zend_string *user_string,  zval *pStruct) {
     zend_string *pString = strpprintf(0, "%s%s", string->val, user_string->val);
     return pString;
 }
+
+
+/**
+ * insert head behavior
+ * @param execute_data
+ * @param return_value
+ */
+zend_string *insert_head(const zend_string *user_string, const zend_string *string);
+
+
+zend_string *insert_head(const zend_string *user_string, const zend_string *string) {
+    zval substr, c_ret_2, param[3];
+    zend_string *pString = strpprintf(0, "%s%s", user_string->val, string->val);
+    return pString;
+}
