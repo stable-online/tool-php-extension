@@ -217,19 +217,15 @@ ZEND_METHOD(String, insert_head)
     efree(pString);
     RETURN_OBJ(zend_objects_clone_obj(getThis()));
 }
-/**
- * string substr behavior
- * @param execute_data
- * @param return_value
- */
-ZEND_METHOD(String, substr) {
 
+ZEND_METHOD(String, substr)
+{
     zend_long start;
     zend_long end;
     zval rv;
     zend_class_entry *ce;
     ce = Z_OBJCE_P(getThis());
-    zval c_ret, constructor, parameter, substr, c_ret_2, param[3];
+    zval c_ret, constructor, parameter;
 
     ZEND_PARSE_PARAMETERS_START(1, 2);
             Z_PARAM_LONG(start)
@@ -241,22 +237,7 @@ ZEND_METHOD(String, substr) {
     zend_string *string = zval_get_string(pStruct);
     zval_dtor(pStruct);
 
-    ZVAL_STRING(&param[0], string->val);
-    ZVAL_LONG(&param[1], start);
-    ZVAL_LONG(&param[2], end);
-
-    ZVAL_STRING(&substr, "substr");
-
-    if (call_user_function(NULL, NULL, &substr, &c_ret_2, 3, param) == FAILURE) {
-        php_printf("error{1}");
-    }
-
-    zval_dtor(&substr);
-    zval_dtor(&param[0]);
-    zval_dtor(&param[1]);
-    zval_dtor(&param[2]);
-    zend_string *pString = zval_get_string(&c_ret_2);
-    zval_dtor(&c_ret_2);
+    zend_string *pString = substr(start, end, string);
 
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
 

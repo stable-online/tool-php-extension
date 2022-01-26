@@ -115,3 +115,30 @@ zend_string *insert_head(const zend_string *user_string, const zend_string *stri
     zend_string *pString = strpprintf(0, "%s%s", user_string->val, string->val);
     return pString;
 }
+
+/**
+ * string substr behavior
+ * @param execute_data
+ * @param return_value
+ */
+zend_string *substr(zend_long start, zend_long end, const zend_string *string);
+
+
+zend_string *substr(zend_long start, zend_long end, const zend_string *string) {
+    zval substr, c_ret_2, param[3];
+    ZVAL_STRING(&param[0], string->val);
+    ZVAL_LONG(&param[1], start);
+    ZVAL_LONG(&param[2], end);
+    ZVAL_STRING(&substr, "substr");
+    if (call_user_function(NULL, NULL, &substr, &c_ret_2, 3, param) == FAILURE) {
+        php_printf("error{1}");
+    }
+
+    zval_dtor(&substr);
+    zval_dtor(&param[0]);
+    zval_dtor(&param[1]);
+    zval_dtor(&param[2]);
+    zend_string *pString = zval_get_string(&c_ret_2);
+    zval_dtor(&c_ret_2);
+    return pString;
+}
