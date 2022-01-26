@@ -28,6 +28,7 @@
 #include "ext/standard/info.h"
 #include "php_tools.h"
 #include "ext/standard/php_string.h"
+#include "tool_string.c"
 
 /* {{{ PHP_INI
  */
@@ -75,34 +76,16 @@ zend_function_entry string_function[] = {
 
 zend_class_entry *String_Object_Tools;
 
-/**
- * take string exchange to uppercase character
- * @param execute_data
- * @param return_value
- */
-ZEND_METHOD(String,upper){
-
+ZEND_METHOD(String, upper){
     zval rv;
     zend_class_entry *ce;
     ce = Z_OBJCE_P(getThis());
-    zval c_ret, constructor, parameter, strtoupper, c_ret_2, param[1];
+    zval c_ret, constructor, parameter ;
+    zval *pStructProperty = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
 
-    zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
-    zend_string *string = zval_get_string(pStruct);
-    zval_dtor(pStruct);
+    zend_string *pString = strtoupper(pStructProperty);
 
-    ZVAL_STRING(&param[0], string->val);
-    ZVAL_STRING(&strtoupper, "strtoupper");
-
-    if (call_user_function(NULL, NULL, &strtoupper, &c_ret_2, 1, param) == FAILURE) {
-        php_printf("error{1}");
-    }
-
-    zval_dtor(&strtoupper);
-    zval_dtor(&param[0]);
-    zend_string *pString = zval_get_string(&c_ret_2);
-    zval_dtor(&c_ret_2);
-
+    zval_dtor(pStructProperty);
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
 
     efree(pString);
@@ -175,7 +158,6 @@ ZEND_METHOD(String, value) {
     zend_class_entry *ce;
     ce = Z_OBJCE_P(getThis());
     zend_string *string = zval_get_string(zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv));
-//    zval_dtor(object);
 
     RETURN_STR(string);
 }
