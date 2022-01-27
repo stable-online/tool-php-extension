@@ -62,6 +62,8 @@ static void php_tools_init_globals(zend_tools_globals *tools_globals)
 */
 /* }}} */
 zend_function_entry string_function[] = {
+
+        //region String Class
         ZEND_ME(String, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
         ZEND_ME(String, value, NULL, ZEND_ACC_PUBLIC)
         ZEND_ME(String, substr, NULL, ZEND_ACC_PUBLIC)
@@ -70,6 +72,7 @@ zend_function_entry string_function[] = {
         ZEND_ME(String, insert_head, NULL, ZEND_ACC_PUBLIC)
         ZEND_ME(String, lower, NULL, ZEND_ACC_PUBLIC)
         ZEND_ME(String, upper, NULL, ZEND_ACC_PUBLIC)
+        //endregion
         ZEND_FE_END
 };
 
