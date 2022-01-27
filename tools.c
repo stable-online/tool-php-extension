@@ -126,8 +126,7 @@ ZEND_METHOD(String, __construct) {
     ZEND_PARSE_PARAMETERS_END();
 
     if (Z_TYPE_P(string) != IS_STRING) {
-        php_error_docref(NULL, E_ERROR, "parameter must is string");
-        RETURN_FALSE;
+        php_error(E_ERROR,"parameter must is string");
     }
 
     zend_update_property_string(String_Object_Tools, getThis(), "property", strlen("property"), Z_STRVAL_P(string));
