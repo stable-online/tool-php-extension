@@ -16,7 +16,7 @@
 zend_string *strtoupper(zval *pStruct);
 
 /**
- * 转化字符串
+ * change to string
  * @param pStruct
  * @return
  */
@@ -26,7 +26,7 @@ zend_string *strtoupper(zval *pStruct) {
     ZVAL_STRING(&param[0], string->val);
     ZVAL_STRING(&strtoupper, "strtoupper");
     if (call_user_function(NULL, NULL, &strtoupper, &c_ret_2, 1, param) == FAILURE) {
-        php_printf("error{1}");
+        php_error(E_ERROR,"program execute error by strtoupper");
     }
     zval_dtor(&strtoupper);
     zval_dtor(&param[0]);
@@ -49,7 +49,7 @@ zend_string *strtolower(const zend_string *string) {
     ZVAL_STRING(&strtolower, "strtolower");
 
     if (call_user_function(NULL, NULL, &strtolower, &c_ret_2, 1, param) == FAILURE) {
-        php_printf("error{1}");
+        php_error(E_ERROR,"program execute error by strtolower");
     }
 
     zval_dtor(&strtolower);
@@ -75,7 +75,7 @@ zend_string *str_replace(const zend_string *search, const zend_string *replace, 
     ZVAL_STRING(&substr, "str_replace");
 
     if (call_user_function(NULL, NULL, &substr, &c_ret_2, 3, param) == FAILURE) {
-        php_printf("error{1}");
+        php_error(E_ERROR,"program execute error by substr");
     }
     zval_dtor(&substr);
     zval_dtor(&param[0]);
