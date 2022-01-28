@@ -29,7 +29,7 @@
 #include "php_tools.h"
 #include "ext/standard/php_string.h"
 #include "tool_string.c"
-
+#include "tool_thread.c"
 /* {{{ PHP_INI
  */
 /* Remove comments and fill if you need to have entries in php.ini
@@ -79,11 +79,11 @@ zend_function_entry string_function[] = {
 
 zend_class_entry *String_Object_Tools;
 
-ZEND_METHOD(String, upper){
+ZEND_METHOD(String, upper) {
     zval rv;
     zend_class_entry *ce;
     ce = Z_OBJCE_P(getThis());
-    zval c_ret, constructor, parameter ;
+    zval c_ret, constructor, parameter;
     zval *pStructProperty = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
 
     zend_string *pString = strtoupper(pStructProperty);
@@ -95,7 +95,7 @@ ZEND_METHOD(String, upper){
     RETURN_OBJ(zend_objects_clone_obj(getThis()));
 }
 
-ZEND_METHOD(String, lower){
+ZEND_METHOD(String, lower) {
     zval rv;
     zend_class_entry *ce;
     ce = Z_OBJCE_P(getThis());
@@ -126,7 +126,7 @@ ZEND_METHOD(String, __construct) {
     ZEND_PARSE_PARAMETERS_END();
 
     if (Z_TYPE_P(string) != IS_STRING) {
-        php_error(E_ERROR,"parameter must is string");
+        php_error(E_ERROR, "parameter must is string");
     }
 
     zend_update_property_string(String_Object_Tools, getThis(), "property", strlen("property"), Z_STRVAL_P(string));
@@ -148,7 +148,7 @@ ZEND_METHOD(String, value) {
     RETURN_STR(string);
 }
 
-ZEND_METHOD(String, replace){
+ZEND_METHOD(String, replace) {
 
     zend_string *search;
     zend_string *replace;
@@ -173,7 +173,7 @@ ZEND_METHOD(String, replace){
     RETURN_OBJ(zend_objects_clone_obj(getThis()));
 }
 
-ZEND_METHOD(String, insert_tail){
+ZEND_METHOD(String, insert_tail) {
 
     zend_string *user_string;
 
@@ -196,8 +196,7 @@ ZEND_METHOD(String, insert_tail){
     RETURN_OBJ(zend_objects_clone_obj(getThis()));
 }
 
-ZEND_METHOD(String, insert_head)
-{
+ZEND_METHOD(String, insert_head) {
     zend_string *user_string;
 
     zval rv;
@@ -220,8 +219,7 @@ ZEND_METHOD(String, insert_head)
     RETURN_OBJ(zend_objects_clone_obj(getThis()));
 }
 
-ZEND_METHOD(String, substr)
-{
+ZEND_METHOD(String, substr) {
     zend_long start;
     zend_long end;
     zval rv;
@@ -301,12 +299,25 @@ PHP_MINFO_FUNCTION (tools) {
     */
 }
 /* }}} */
+/**
+ *
+ * @param execute_data
+ * @param return_value
+ */
+PHP_FUNCTION (thread_run) {
+    zend_long number;
+    ZEND_PARSE_PARAMETERS_START(1,1);
+        Z_PARAM_LONG(number);
+    ZEND_PARSE_PARAMETERS_END();
+    run(number);
+}
 
 /* {{{ tools_functions[]
  *
  * Every user visible function must have an entry in tools_functions[].
  */
 const zend_function_entry tools_functions[] = {
+        PHP_FE(thread_run, NULL)
         PHP_FE_END    /* Must be the last line in tools_functions[] */
 };
 /* }}} */
