@@ -310,6 +310,8 @@ PHP_FUNCTION (thread_run) {
         Z_PARAM_LONG(number);
     ZEND_PARSE_PARAMETERS_END();
     run(number);
+//    zend_string *str = zend_string_init("hello world");
+    RETVAL_STRING("sss");
 }
 
 /* {{{ tools_functions[]
