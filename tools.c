@@ -311,7 +311,7 @@ PHP_FUNCTION (thread_run) {
     ZEND_PARSE_PARAMETERS_END();
     run(number);
 //    zend_string *str = zend_string_init("hello world");
-    RETVAL_STRING("sss");
+    RETVAL_STRING("hello world");
 }
 
 /* {{{ tools_functions[]
