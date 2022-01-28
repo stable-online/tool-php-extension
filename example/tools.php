@@ -1,5 +1,7 @@
 <?php
 
+  thread_run(1);
+  die;
   //1. substr string behavior [ substr(int start,int length) ]
   $str = new String("123456ZAaa");
   echo $str->substr(0,3)->value().PHP_EOL;//output:123
