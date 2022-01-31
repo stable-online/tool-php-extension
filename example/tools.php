@@ -1,18 +1,18 @@
 <?php
-  $ac  = range(1, 1000000);
+  $ac  = range(1, 500000);
 
   $start = time();
   $a = thread_run(function($a){
-  $b = $a+2;
-  sleep(1);
-  return $b;
-  },1,$ac);
+  $a = $a+2;
+  return $a;
+  },6,$ac);
 
+print_r($a);
   $end = time();
   $ab = $end - $start;
-//   print_r($a);
   print_r("\nthread_run={$ab}");
   die;
+
   //1. substr string behavior [ substr(int start,int length) ]
   $str = new String("123456ZAaa");
   echo $str->substr(0,3)->value().PHP_EOL;//output:123

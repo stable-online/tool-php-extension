@@ -360,6 +360,7 @@ void execute_run(struct parameter *parameter) {
 }
 
 PHP_FUNCTION(thread_run) {
+
     zval *arrays = NULL;
     int n_arrays = 0;
     zval result;
@@ -368,7 +369,6 @@ PHP_FUNCTION(thread_run) {
 
     zend_fcall_info fci = empty_fcall_info;
     zend_fcall_info_cache fci_cache = empty_fcall_info_cache;
-    int i;
     uint32_t k;
 
     ZEND_PARSE_PARAMETERS_START(2, -1)
@@ -396,20 +396,23 @@ PHP_FUNCTION(thread_run) {
     int number = ceil(count/thread_number);
 
     for (int j = 0; j < thread_number; ++j) {
-        zval array, c_ret_2, param[3];
+
+        zval array,param[3];
+
+        zval *c_ret_2 = emalloc(sizeof(zval)-1);
+        ZVAL_STRING(&array, "array_slice");
         ZVAL_ARR(&param[0], pArray);
         ZVAL_LONG(&param[1], j * number);
         ZVAL_LONG(&param[2], number);
-        ZVAL_STRING(&array, "array_slice");
-        if (call_user_function(NULL, NULL, &array, &c_ret_2, 3, param) == FAILURE) {
+
+        if (call_user_function(NULL, NULL, &array, c_ret_2, 3, param) == FAILURE) {
             php_printf("error{1}");
         }
 
-//        php_printf("%d",number);return;
         zval_dtor(&array);
         zval_dtor(&param[1]);
         zval_dtor(&param[2]);
-        zend_array *arraysss = Z_ARRVAL_P(&c_ret_2);
+        zend_array *arraysss = Z_ARRVAL_P(c_ret_2);
 
         struct parameter *parameter_info = emalloc(sizeof(struct parameter));
         parameter_info->return_value = return_value;
@@ -420,7 +423,6 @@ PHP_FUNCTION(thread_run) {
         int tmp1;
         void *retval;
 
-        zval_dtor(&param[0]);
         pthread_t thread[thread_number];
 
         int ret_thrd1;
@@ -429,16 +431,17 @@ PHP_FUNCTION(thread_run) {
         if (ret_thrd1 != 0) {
             printf("线程1创建失败\n");
         } else {
-            printf("线程1创建成功\n");
+//            printf("线程1创建成功\n");
         }
 
         tmp1 = pthread_join(thread[j], &retval);
         if (tmp1 != 0) {
             printf("cannot join with thread1\n");
         }
-        zval_dtor(&c_ret_2);
+        efree(c_ret_2);
         efree(arraysss);
     }
+    efree(pArray);
 }
 
 /* {{{ tools_functions[]
