@@ -1,7 +1,8 @@
 <?php
 
   thread_run(function($a){
-  echo $a+2;
+  $b = $a+2;
+  echo $b.PHP_EOL;
   },[1,23]);
   die;
   //1. substr string behavior [ substr(int start,int length) ]
