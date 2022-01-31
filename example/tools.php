@@ -1,11 +1,17 @@
 <?php
+  $ac  = range(1, 1000000);
 
+  $start = time();
   $a = thread_run(function($a){
   $b = $a+2;
+  sleep(1);
   return $b;
-  },1,['a'=>1,'b'=>23,'c'=>2]);
+  },1,$ac);
 
-  print_r($a);
+  $end = time();
+  $ab = $end - $start;
+//   print_r($a);
+  print_r("\nthread_run={$ab}");
   die;
   //1. substr string behavior [ substr(int start,int length) ]
   $str = new String("123456ZAaa");

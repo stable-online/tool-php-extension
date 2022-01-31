@@ -394,8 +394,8 @@ PHP_FUNCTION(thread_run) {
     int count = zend_array_count(pArray);
     array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
     int number = ceil(count/thread_number);
-    for (int j = 0; j < number; ++j) {
 
+    for (int j = 0; j < thread_number; ++j) {
         zval array, c_ret_2, param[3];
         ZVAL_ARR(&param[0], pArray);
         ZVAL_LONG(&param[1], j * number);
@@ -405,14 +405,13 @@ PHP_FUNCTION(thread_run) {
             php_printf("error{1}");
         }
 
+//        php_printf("%d",number);return;
         zval_dtor(&array);
-        zval_dtor(&param[0]);
         zval_dtor(&param[1]);
         zval_dtor(&param[2]);
         zend_array *arraysss = Z_ARRVAL_P(&c_ret_2);
-        zval_dtor(&c_ret_2);
 
-        struct parameter *parameter_info = malloc(sizeof(struct parameter));
+        struct parameter *parameter_info = emalloc(sizeof(struct parameter));
         parameter_info->return_value = return_value;
         parameter_info->arrays = arraysss;
         parameter_info->result = &result;
@@ -421,23 +420,24 @@ PHP_FUNCTION(thread_run) {
         int tmp1;
         void *retval;
 
-        pthread_t thread;
+        zval_dtor(&param[0]);
+        pthread_t thread[thread_number];
 
         int ret_thrd1;
 
-        ret_thrd1 = pthread_create(&thread, NULL, (void *) &execute_run, (void *) parameter_info);
+        ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
         if (ret_thrd1 != 0) {
             printf("线程1创建失败\n");
         } else {
             printf("线程1创建成功\n");
         }
 
-        tmp1 = pthread_join(thread, &retval);
+        tmp1 = pthread_join(thread[j], &retval);
         if (tmp1 != 0) {
             printf("cannot join with thread1\n");
         }
-
-        free(parameter_info);
+        zval_dtor(&c_ret_2);
+        efree(arraysss);
     }
 }
 
