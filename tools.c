@@ -299,12 +299,19 @@ PHP_MINFO_FUNCTION (tools) {
     */
 }
 /* }}} */
+struct parameter {
+    zval *return_value;
+    zval *arrays;
+    zval *result;
+    zend_fcall_info *fci;
+    zend_fcall_info_cache *fci_cache;
+};
 /**
  *
  * @param execute_data
  * @param return_value
  */
-void execute_run(zval *return_value, const zval *arrays, zval *result, zend_fcall_info *fci, zend_fcall_info_cache *fci_cache);
+void execute_run(struct parameter *parameter);
 
 /**
  *
@@ -314,8 +321,13 @@ void execute_run(zval *return_value, const zval *arrays, zval *result, zend_fcal
  * @param fci
  * @param fci_cache
  */
-void execute_run(zval *return_value, const zval *arrays, zval *result, zend_fcall_info *fci,
-    zend_fcall_info_cache *fci_cache) {
+void execute_run(struct parameter *parameter) {
+    zval *arrays = parameter->arrays;
+    zval *return_value = parameter->return_value;
+    zval *result = parameter->result;
+    zend_fcall_info *fci = parameter->fci;
+    zend_fcall_info_cache *fci_cache = parameter->fci_cache;
+
     zend_ulong num_key;
     zend_string *str_key;
     zval *zv, arg;
@@ -375,7 +387,15 @@ PHP_FUNCTION(thread_run) {
         return;
     }
 
-    execute_run(return_value, arrays,&result, &fci, &fci_cache);
+    struct parameter *parameter_info = malloc(sizeof(struct parameter));
+
+    parameter_info->return_value = return_value;
+    parameter_info->arrays = arrays;
+    parameter_info->result = &result;
+    parameter_info->fci = &fci;
+    parameter_info->fci_cache = &fci_cache;
+
+    execute_run(parameter_info);
 }
 
 /* {{{ tools_functions[]
