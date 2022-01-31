@@ -1,9 +1,11 @@
 <?php
 
-  thread_run(function($a){
+  $a = thread_run(function($a){
   $b = $a+2;
-  echo $b.PHP_EOL;
+  return $b;
   },[1,23]);
+
+  print_r($a);
   die;
   //1. substr string behavior [ substr(int start,int length) ]
   $str = new String("123456ZAaa");

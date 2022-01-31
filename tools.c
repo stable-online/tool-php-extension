@@ -387,59 +387,35 @@ PHP_FUNCTION(thread_run) {
         return;
     }
 
+    for (int j = 0; j < 3; ++j) {
+        struct parameter *parameter_info = malloc(sizeof(struct parameter));
+        parameter_info->return_value = return_value;
+        parameter_info->arrays = arrays;
+        parameter_info->result = &result;
+        parameter_info->fci = &fci;
+        parameter_info->fci_cache = &fci_cache;
+        int tmp1;
+        void *retval;
 
-    struct parameter *parameter_info1 = malloc(sizeof(struct parameter));
-    parameter_info1->return_value = return_value;
-    parameter_info1->arrays = arrays;
-    parameter_info1->result = &result;
-    parameter_info1->fci = &fci;
-    parameter_info1->fci_cache = &fci_cache;
+        pthread_t thread1;
 
-    struct parameter *parameter_info2 = malloc(sizeof(struct parameter));
-    parameter_info2->return_value = return_value;
-    parameter_info2->arrays = arrays;
-    parameter_info2->result = &result;
-    parameter_info2->fci = &fci;
-    parameter_info2->fci_cache = &fci_cache;
-//    execute_run(parameter_info);
+        int ret_thrd1;
 
-    int tmp1, tmp2;
-    void *retval;
+        ret_thrd1 = pthread_create(&thread1, NULL, (void *) &execute_run, (void *) parameter_info);
+        if (ret_thrd1 != 0) {
+//            printf("线程1创建失败\n");
+        } else {
+//            printf("线程1创建成功\n");
+        }
 
-    pthread_t thread1, thread2;
-    char *message1 = "thread1";
-    char *message2 = "thread2";
+        tmp1 = pthread_join(thread1, &retval);
+        if (tmp1 != 0) {
+            printf("cannot join with thread1\n");
+        }
+//        printf("thread1 end\n");
 
-    int ret_thrd1, ret_thrd2;
-
-    ret_thrd1 = pthread_create(&thread1, NULL, (void *) &execute_run, (void *) parameter_info1);
-    ret_thrd2 = pthread_create(&thread2, NULL, (void *) &execute_run, (void *) parameter_info2);
-
-    if (ret_thrd1 != 0) {
-        printf("线程1创建失败\n");
-    } else {
-        printf("线程1创建成功\n");
+        free(parameter_info);
     }
-
-    if (ret_thrd2 != 0) {
-        printf("线程2创建失败\n");
-    } else {
-        printf("线程2创建成功\n");
-    }
-
-    tmp1 = pthread_join(thread1, &retval);
-    if (tmp1 != 0) {
-        printf("cannot join with thread1\n");
-    }
-    printf("thread1 end\n");
-
-    tmp2 = pthread_join(thread2, &retval);
-    if (tmp2 != 0) {
-        printf("cannot join with thread2\n");
-    }
-
-    printf("thread2 end\n");
-
 }
 
 /* {{{ tools_functions[]
