@@ -30,6 +30,7 @@
 #include "ext/standard/php_string.h"
 #include "tool_string.c"
 #include "tool_thread.c"
+#include <unistd.h>
 /* {{{ PHP_INI
  */
 /* Remove comments and fill if you need to have entries in php.ini
@@ -301,7 +302,7 @@ PHP_MINFO_FUNCTION (tools) {
 /* }}} */
 struct parameter {
     zval *return_value;
-    zval *arrays;
+    zend_array *arrays;
     zval *result;
     zend_fcall_info *fci;
     zend_fcall_info_cache *fci_cache;
@@ -322,7 +323,7 @@ void execute_run(struct parameter *parameter);
  * @param fci_cache
  */
 void execute_run(struct parameter *parameter) {
-    zval *arrays = parameter->arrays;
+    zend_array *arrays = parameter->arrays;
     zval *return_value = parameter->return_value;
     zval *result = parameter->result;
     zend_fcall_info *fci = parameter->fci;
@@ -331,9 +332,8 @@ void execute_run(struct parameter *parameter) {
     zend_ulong num_key;
     zend_string *str_key;
     zval *zv, arg;
-    array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
 
-    ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL(arrays[0]), num_key, str_key, zv)
+    ZEND_HASH_FOREACH_KEY_VAL(arrays, num_key, str_key, zv)
             {
                 (*fci).retval = result;
                 (*fci).param_count = 1;
@@ -350,7 +350,6 @@ void execute_run(struct parameter *parameter) {
                     zval_ptr_dtor(&arg);
                 }
 
-//                php_printf("%d\n", num_key);
                 if (str_key) {
                     zend_hash_add_new(Z_ARRVAL_P(return_value), str_key, result);
                 } else {
@@ -364,6 +363,9 @@ PHP_FUNCTION(thread_run) {
     zval *arrays = NULL;
     int n_arrays = 0;
     zval result;
+
+    zend_long thread_number = 0 ;
+
     zend_fcall_info fci = empty_fcall_info;
     zend_fcall_info_cache fci_cache = empty_fcall_info_cache;
     int i;
@@ -371,6 +373,7 @@ PHP_FUNCTION(thread_run) {
 
     ZEND_PARSE_PARAMETERS_START(2, -1)
             Z_PARAM_FUNC_EX(fci, fci_cache, 1, 0)
+            Z_PARAM_LONG(thread_number)
             Z_PARAM_VARIADIC('+', arrays, n_arrays)
     ZEND_PARSE_PARAMETERS_END();
 
@@ -387,12 +390,31 @@ PHP_FUNCTION(thread_run) {
         return;
     }
 
-    int count = zend_array_count(Z_ARRVAL_P(arrays));
+    zend_array *pArray = Z_ARRVAL_P(arrays);
+    int count = zend_array_count(pArray);
+    array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
+    int number = ceil(count/thread_number);
+    for (int j = 0; j < number; ++j) {
 
-    for (int j = 0; j < 3; ++j) {
+        zval array, c_ret_2, param[3];
+        ZVAL_ARR(&param[0], pArray);
+        ZVAL_LONG(&param[1], j * number);
+        ZVAL_LONG(&param[2], number);
+        ZVAL_STRING(&array, "array_slice");
+        if (call_user_function(NULL, NULL, &array, &c_ret_2, 3, param) == FAILURE) {
+            php_printf("error{1}");
+        }
+
+        zval_dtor(&array);
+        zval_dtor(&param[0]);
+        zval_dtor(&param[1]);
+        zval_dtor(&param[2]);
+        zend_array *arraysss = Z_ARRVAL_P(&c_ret_2);
+        zval_dtor(&c_ret_2);
+
         struct parameter *parameter_info = malloc(sizeof(struct parameter));
         parameter_info->return_value = return_value;
-        parameter_info->arrays = arrays;
+        parameter_info->arrays = arraysss;
         parameter_info->result = &result;
         parameter_info->fci = &fci;
         parameter_info->fci_cache = &fci_cache;
