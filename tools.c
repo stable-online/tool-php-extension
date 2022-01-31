@@ -387,6 +387,8 @@ PHP_FUNCTION(thread_run) {
         return;
     }
 
+    int count = zend_array_count(Z_ARRVAL_P(arrays));
+
     for (int j = 0; j < 3; ++j) {
         struct parameter *parameter_info = malloc(sizeof(struct parameter));
         parameter_info->return_value = return_value;
@@ -397,22 +399,21 @@ PHP_FUNCTION(thread_run) {
         int tmp1;
         void *retval;
 
-        pthread_t thread1;
+        pthread_t thread;
 
         int ret_thrd1;
 
-        ret_thrd1 = pthread_create(&thread1, NULL, (void *) &execute_run, (void *) parameter_info);
+        ret_thrd1 = pthread_create(&thread, NULL, (void *) &execute_run, (void *) parameter_info);
         if (ret_thrd1 != 0) {
-//            printf("线程1创建失败\n");
+            printf("线程1创建失败\n");
         } else {
-//            printf("线程1创建成功\n");
+            printf("线程1创建成功\n");
         }
 
-        tmp1 = pthread_join(thread1, &retval);
+        tmp1 = pthread_join(thread, &retval);
         if (tmp1 != 0) {
             printf("cannot join with thread1\n");
         }
-//        printf("thread1 end\n");
 
         free(parameter_info);
     }

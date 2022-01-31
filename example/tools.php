@@ -3,7 +3,7 @@
   $a = thread_run(function($a){
   $b = $a+2;
   return $b;
-  },[1,23]);
+  },['a'=>1,'b'=>23]);
 
   print_r($a);
   die;
