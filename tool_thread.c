@@ -11,6 +11,7 @@ void run(long number){
 
     int tmp1, tmp2;
     void *retval;
+
     pthread_t thread1, thread2;
     char *message1 = "thread1";
     char *message2 = "thread2";
@@ -42,6 +43,7 @@ void run(long number){
     if (tmp2 != 0) {
         printf("cannot join with thread2\n");
     }
+
     printf("thread2 end\n");
 }
 

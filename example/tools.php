@@ -1,6 +1,8 @@
 <?php
 
-  thread_run(1);
+  thread_run(function($a){
+  echo $a+2;
+  },[1,23]);
   die;
   //1. substr string behavior [ substr(int start,int length) ]
   $str = new String("123456ZAaa");

@@ -304,14 +304,78 @@ PHP_MINFO_FUNCTION (tools) {
  * @param execute_data
  * @param return_value
  */
-PHP_FUNCTION (thread_run) {
-    zend_long number;
-    ZEND_PARSE_PARAMETERS_START(1,1);
-        Z_PARAM_LONG(number);
+void execute_run(zval *return_value, const zval *arrays, zval *result, zend_fcall_info *fci, zend_fcall_info_cache *fci_cache);
+
+/**
+ *
+ * @param return_value
+ * @param arrays
+ * @param result
+ * @param fci
+ * @param fci_cache
+ */
+void execute_run(zval *return_value, const zval *arrays, zval *result, zend_fcall_info *fci,
+    zend_fcall_info_cache *fci_cache) {
+    zend_ulong num_key;
+    zend_string *str_key;
+    zval *zv, arg;
+    array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
+
+    ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL(arrays[0]), num_key, str_key, zv)
+            {
+                (*fci).retval = result;
+                (*fci).param_count = 1;
+                (*fci).params = &arg;
+                (*fci).no_separation = 0;
+
+                ZVAL_COPY(&arg, zv);
+
+                if (zend_call_function(fci, fci_cache) != SUCCESS || Z_TYPE((*result)) == IS_UNDEF) {
+                    zval_dtor(return_value);
+                    zval_ptr_dtor(&arg);
+                    RETURN_NULL();
+                } else {
+                    zval_ptr_dtor(&arg);
+                }
+
+                php_printf("%d\n", num_key);
+                if (str_key) {
+                    zend_hash_add_new(Z_ARRVAL_P(return_value), str_key, result);
+                } else {
+                    zend_hash_index_add_new(Z_ARRVAL_P(return_value), num_key, result);
+                }
+
+            }ZEND_HASH_FOREACH_END();
+}
+
+PHP_FUNCTION(thread_run) {
+    zval *arrays = NULL;
+    int n_arrays = 0;
+    zval result;
+    zend_fcall_info fci = empty_fcall_info;
+    zend_fcall_info_cache fci_cache = empty_fcall_info_cache;
+    int i;
+    uint32_t k;
+
+    ZEND_PARSE_PARAMETERS_START(2, -1)
+            Z_PARAM_FUNC_EX(fci, fci_cache, 1, 0)
+            Z_PARAM_VARIADIC('+', arrays, n_arrays)
     ZEND_PARSE_PARAMETERS_END();
-    run(number);
-//    zend_string *str = zend_string_init("hello world");
-    RETVAL_STRING("hello world");
+
+    RETVAL_NULL();
+
+    if (Z_TYPE(arrays[0]) != IS_ARRAY) {
+        php_error_docref(NULL, E_WARNING, "Argument #%d should be an array", 2);
+        return;
+    }
+
+    /* Short-circuit: if no callback and only one array, just return it. */
+    if (!ZEND_FCI_INITIALIZED(fci)) {
+        ZVAL_COPY(return_value, &arrays[0]);
+        return;
+    }
+
+    execute_run(return_value, arrays,&result, &fci, &fci_cache);
 }
 
 /* {{{ tools_functions[]
