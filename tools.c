@@ -82,12 +82,12 @@ zend_class_entry *String_Object_Tools;
 
 ZEND_METHOD(String, upper) {
     zval rv;
-    zend_class_entry *ce;
+    zend_class_entry * ce;
     ce = Z_OBJCE_P(getThis());
     zval c_ret, constructor, parameter;
-    zval *pStructProperty = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zval * pStructProperty = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
 
-    zend_string *pString = strtoupper(pStructProperty);
+    zend_string * pString = strtoupper(pStructProperty);
 
     zval_dtor(pStructProperty);
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
@@ -98,15 +98,15 @@ ZEND_METHOD(String, upper) {
 
 ZEND_METHOD(String, lower) {
     zval rv;
-    zend_class_entry *ce;
+    zend_class_entry * ce;
     ce = Z_OBJCE_P(getThis());
     zval c_ret, constructor, parameter;
 
-    zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
-    zend_string *string = zval_get_string(pStruct);
+    zval * pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zend_string * string = zval_get_string(pStruct);
     zval_dtor(pStruct);
 
-    zend_string *pString = strtolower(string);
+    zend_string * pString = strtolower(string);
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
 
     efree(pString);
@@ -119,7 +119,7 @@ ZEND_METHOD(String, lower) {
  * @param return_value
  */
 ZEND_METHOD(String, __construct) {
-    zval *string;
+    zval * string;
     int len;
 
     ZEND_PARSE_PARAMETERS_START(1, 1);
@@ -139,22 +139,22 @@ ZEND_METHOD(String, __construct) {
  * @param return_value
  */
 ZEND_METHOD(String, value) {
-    zval *msg, rv;
-    zval *object = getThis();
+    zval * msg, rv;
+    zval * object = getThis();
 
-    zend_class_entry *ce;
+    zend_class_entry * ce;
     ce = Z_OBJCE_P(getThis());
-    zend_string *string = zval_get_string(zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv));
+    zend_string * string = zval_get_string(zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv));
 
     RETURN_STR(string);
 }
 
 ZEND_METHOD(String, replace) {
 
-    zend_string *search;
-    zend_string *replace;
+    zend_string * search;
+    zend_string * replace;
     zval rv;
-    zend_class_entry *ce;
+    zend_class_entry * ce;
     ce = Z_OBJCE_P(getThis());
     zval c_ret, constructor, parameter;
 
@@ -163,11 +163,11 @@ ZEND_METHOD(String, replace) {
             Z_PARAM_STR(replace)
     ZEND_PARSE_PARAMETERS_END();
 
-    zval *pStructProperty = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
-    zend_string *string = zval_get_string(pStructProperty);
+    zval * pStructProperty = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zend_string * string = zval_get_string(pStructProperty);
     zval_dtor(pStructProperty);
 
-    zend_string *pString = str_replace(search, replace, string);
+    zend_string * pString = str_replace(search, replace, string);
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
     efree(pString);
 
@@ -176,10 +176,10 @@ ZEND_METHOD(String, replace) {
 
 ZEND_METHOD(String, insert_tail) {
 
-    zend_string *user_string;
+    zend_string * user_string;
 
     zval rv;
-    zend_class_entry *ce;
+    zend_class_entry * ce;
     ce = Z_OBJCE_P(getThis());
     zval c_ret, constructor, parameter;
 
@@ -188,9 +188,9 @@ ZEND_METHOD(String, insert_tail) {
     ZEND_PARSE_PARAMETERS_END();
 
     zval substr, c_ret_2, param[3];
-    zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zval * pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
 
-    zend_string *pString = insert_tail(user_string, pStruct);
+    zend_string * pString = insert_tail(user_string, pStruct);
 
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
     efree(pString);
@@ -198,10 +198,10 @@ ZEND_METHOD(String, insert_tail) {
 }
 
 ZEND_METHOD(String, insert_head) {
-    zend_string *user_string;
+    zend_string * user_string;
 
     zval rv;
-    zend_class_entry *ce;
+    zend_class_entry * ce;
     ce = Z_OBJCE_P(getThis());
     zval c_ret, constructor, parameter;
 
@@ -209,11 +209,11 @@ ZEND_METHOD(String, insert_head) {
             Z_PARAM_STR(user_string)
     ZEND_PARSE_PARAMETERS_END();
 
-    zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
-    zend_string *string = zval_get_string(pStruct);
+    zval * pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zend_string * string = zval_get_string(pStruct);
     zval_dtor(pStruct);
 
-    zend_string *pString = insert_head(user_string, string);
+    zend_string * pString = insert_head(user_string, string);
 
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
     efree(pString);
@@ -224,7 +224,7 @@ ZEND_METHOD(String, substr) {
     zend_long start;
     zend_long end;
     zval rv;
-    zend_class_entry *ce;
+    zend_class_entry * ce;
     ce = Z_OBJCE_P(getThis());
     zval c_ret, constructor, parameter;
 
@@ -234,11 +234,11 @@ ZEND_METHOD(String, substr) {
             Z_PARAM_LONG(end)
     ZEND_PARSE_PARAMETERS_END();
 
-    zval *pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
-    zend_string *string = zval_get_string(pStruct);
+    zval * pStruct = zend_read_property(ce, getThis(), "property", strlen("property"), 1, &rv);
+    zend_string * string = zval_get_string(pStruct);
     zval_dtor(pStruct);
 
-    zend_string *pString = substr(start, end, string);
+    zend_string * pString = substr(start, end, string);
 
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
 
@@ -299,6 +299,7 @@ PHP_MINFO_FUNCTION (tools) {
     DISPLAY_INI_ENTRIES();
     */
 }
+
 /* }}} */
 struct parameter {
     zval *return_value;
@@ -307,12 +308,15 @@ struct parameter {
     zend_fcall_info *fci;
     zend_fcall_info_cache *fci_cache;
 };
+
 /**
  *
  * @param execute_data
  * @param return_value
  */
 void execute_run(struct parameter *parameter);
+
+zend_array *slice(zend_array *pArray, int number, int j);
 
 /**
  *
@@ -324,14 +328,14 @@ void execute_run(struct parameter *parameter);
  */
 void execute_run(struct parameter *parameter) {
     zend_array *arrays = parameter->arrays;
-    zval *return_value = parameter->return_value;
-    zval *result = parameter->result;
+    zval * return_value = parameter->return_value;
+    zval * result = parameter->result;
     zend_fcall_info *fci = parameter->fci;
     zend_fcall_info_cache *fci_cache = parameter->fci_cache;
 
     zend_ulong num_key;
-    zend_string *str_key;
-    zval *zv, arg;
+    zend_string * str_key;
+    zval * zv, arg;
 
     ZEND_HASH_FOREACH_KEY_VAL(arrays, num_key, str_key, zv)
             {
@@ -359,17 +363,36 @@ void execute_run(struct parameter *parameter) {
             }ZEND_HASH_FOREACH_END();
 }
 
-PHP_FUNCTION(thread_run) {
+zend_array *slice(zend_array *pArray, int number, int j) {
+    zval array, param[4];
 
-    zval *arrays = NULL;
+    zval * c_ret_2 = emalloc(sizeof(zval) - 1);
+    ZVAL_STRING(&array, "array_slice");
+    ZVAL_ARR(&param[0], pArray);
+    ZVAL_LONG(&param[1], j * number);
+    ZVAL_LONG(&param[2], number);
+    ZVAL_STRING(&param[3], "true");
+
+    if (call_user_function(NULL, NULL, &array, c_ret_2, 4, param) == FAILURE) {
+        php_printf("error{1}");
+    }
+
+    zval_dtor(&array);
+    zval_dtor(&param[1]);
+    zval_dtor(&param[2]);
+    zend_array *arraysss = Z_ARRVAL_P(c_ret_2);
+    return arraysss;
+}
+
+PHP_FUNCTION (thread_run) {
+    zval * arrays = NULL;
     int n_arrays = 0;
     zval result;
 
-    zend_long thread_number = 0 ;
+    zend_long thread_number = 0;
 
     zend_fcall_info fci = empty_fcall_info;
     zend_fcall_info_cache fci_cache = empty_fcall_info_cache;
-    uint32_t k;
 
     ZEND_PARSE_PARAMETERS_START(2, -1)
             Z_PARAM_FUNC_EX(fci, fci_cache, 1, 0)
@@ -393,29 +416,13 @@ PHP_FUNCTION(thread_run) {
     zend_array *pArray = Z_ARRVAL_P(arrays);
     int count = zend_array_count(pArray);
     array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
-    int number = ceil(count/thread_number);
+    int number = ceil(count / thread_number);
 
-    pthread_t thread[thread_number-1];
+    pthread_t thread[thread_number - 1];
 
     for (int j = 0; j < thread_number; ++j) {
 
-        zval array,param[4];
-
-        zval *c_ret_2 = emalloc(sizeof(zval)-1);
-        ZVAL_STRING(&array, "array_slice");
-        ZVAL_ARR(&param[0], pArray);
-        ZVAL_LONG(&param[1], j * number);
-        ZVAL_LONG(&param[2], number);
-        ZVAL_STRING(&param[3], "true");
-
-        if (call_user_function(NULL, NULL, &array, c_ret_2, 4, param) == FAILURE) {
-            php_printf("error{1}");
-        }
-
-        zval_dtor(&array);
-        zval_dtor(&param[1]);
-        zval_dtor(&param[2]);
-        zend_array *arraysss = Z_ARRVAL_P(c_ret_2);
+        zend_array *arraysss = slice(pArray, number, j);
 
         struct parameter *parameter_info = emalloc(sizeof(struct parameter));
         parameter_info->return_value = return_value;
@@ -428,11 +435,11 @@ PHP_FUNCTION(thread_run) {
         if (ret_thrd1 != 0) {
             printf("线程1创建失败\n");
         } else {
-            printf("线程%d创建成功\n",j);
+            printf("线程%d创建成功\n", j);
         }
     }
 
-    for (int i = 0;i  < thread_number; ++i) {
+    for (int i = 0; i < thread_number; ++i) {
         int tmp1;
         void *retval;
         tmp1 = pthread_join(thread[i], &retval);
