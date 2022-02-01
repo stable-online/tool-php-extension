@@ -397,15 +397,16 @@ PHP_FUNCTION(thread_run) {
 
     for (int j = 0; j < thread_number; ++j) {
 
-        zval array,param[3];
+        zval array,param[4];
 
         zval *c_ret_2 = emalloc(sizeof(zval)-1);
         ZVAL_STRING(&array, "array_slice");
         ZVAL_ARR(&param[0], pArray);
         ZVAL_LONG(&param[1], j * number);
         ZVAL_LONG(&param[2], number);
+        ZVAL_STRING(&param[3], "true");
 
-        if (call_user_function(NULL, NULL, &array, c_ret_2, 3, param) == FAILURE) {
+        if (call_user_function(NULL, NULL, &array, c_ret_2, 4, param) == FAILURE) {
             php_printf("error{1}");
         }
 

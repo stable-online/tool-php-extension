@@ -1,13 +1,11 @@
 <?php
-  $ac  = range(1, 500000);
+  $ac  = range(0, 6);
 
   $start = time();
   $a = thread_run(function($a){
-  $a = $a+2;
   return $a;
   },6,$ac);
-
-print_r($a);
+  print_r($a);
   $end = time();
   $ab = $end - $start;
   print_r("\nthread_run={$ab}");
