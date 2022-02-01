@@ -395,6 +395,8 @@ PHP_FUNCTION(thread_run) {
     array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
     int number = ceil(count/thread_number);
 
+    pthread_t thread[thread_number-1];
+
     for (int j = 0; j < thread_number; ++j) {
 
         zval array,param[4];
@@ -421,27 +423,24 @@ PHP_FUNCTION(thread_run) {
         parameter_info->result = &result;
         parameter_info->fci = &fci;
         parameter_info->fci_cache = &fci_cache;
-        int tmp1;
-        void *retval;
 
-        pthread_t thread[thread_number];
-
-        int ret_thrd1;
-
-        ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
+        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
         if (ret_thrd1 != 0) {
             printf("线程1创建失败\n");
         } else {
-//            printf("线程1创建成功\n");
+            printf("线程%d创建成功\n",j);
         }
+    }
 
-        tmp1 = pthread_join(thread[j], &retval);
+    for (int i = 0;i  < thread_number; ++i) {
+        int tmp1;
+        void *retval;
+        tmp1 = pthread_join(thread[i], &retval);
         if (tmp1 != 0) {
             printf("cannot join with thread1\n");
         }
-        efree(c_ret_2);
-        efree(arraysss);
     }
+
     efree(pArray);
 }
 

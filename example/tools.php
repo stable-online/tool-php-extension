@@ -1,8 +1,11 @@
 <?php
-  $ac  = range(0, 6);
+
+  $ac  = range(0, 60);
 
   $start = time();
   $a = thread_run(function($a){
+  $a = $a +1;
+//   sleep(1);
   return $a;
   },6,$ac);
   print_r($a);
