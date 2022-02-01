@@ -316,7 +316,7 @@ struct parameter {
  */
 void execute_run(struct parameter *parameter);
 
-zend_array *slice(zend_array *pArray, int number, int j);
+zval *slice(zend_array *pArray, int start, int length);
 
 /**
  *
@@ -363,15 +363,15 @@ void execute_run(struct parameter *parameter) {
             }ZEND_HASH_FOREACH_END();
 }
 
-zend_array *slice(zend_array *pArray, int number, int j) {
+zval *slice(zend_array *pArray, int start, int length) {
     zval array, param[4];
 
     zval * c_ret_2 = emalloc(sizeof(zval) - 1);
     ZVAL_STRING(&array, "array_slice");
     ZVAL_ARR(&param[0], pArray);
-    ZVAL_LONG(&param[1], j * number);
-    ZVAL_LONG(&param[2], number);
-    ZVAL_STRING(&param[3], "true");
+    ZVAL_LONG(&param[1], start);
+    ZVAL_LONG(&param[2], length);
+    ZVAL_BOOL(&param[3], 1);
 
     if (call_user_function(NULL, NULL, &array, c_ret_2, 4, param) == FAILURE) {
         php_printf("error{1}");
@@ -380,8 +380,7 @@ zend_array *slice(zend_array *pArray, int number, int j) {
     zval_dtor(&array);
     zval_dtor(&param[1]);
     zval_dtor(&param[2]);
-    zend_array *arraysss = Z_ARRVAL_P(c_ret_2);
-    return arraysss;
+    return c_ret_2;
 }
 
 PHP_FUNCTION (thread_run) {
@@ -419,36 +418,41 @@ PHP_FUNCTION (thread_run) {
     int number = ceil((float)count / thread_number);
     pthread_t thread[thread_number - 1];
 
+    struct parameter *parameter_list[thread_number-1];
+
     for (int j = 0; j < thread_number; ++j) {
 
-        zval result;
-        zend_array *arraysss = slice(pArray, number, j);
+        zval *slice_array = slice(pArray, number * j, number);
+        zend_array *ht_array = Z_ARRVAL_P(slice_array);
+        if (zend_array_count(ht_array) <= 0) {
+            continue;
+        }
 
         struct parameter *parameter_info = emalloc(sizeof(struct parameter));
+        zval result;
         parameter_info->return_value = return_value;
-        parameter_info->arrays = arraysss;
+        parameter_info->arrays = ht_array;
         parameter_info->result = &result;
         parameter_info->fci = &fci;
         parameter_info->fci_cache = &fci_cache;
 
-        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
-        if (ret_thrd1 != 0) {
-            printf("线程1创建失败\n");
-        } else {
-            printf("线程%d创建成功\n", j);
-        }
+        execute_run(parameter_info);
+//        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
+//        if (ret_thrd1 != 0) {
+//            printf("线程1创建失败\n");
+//        } else {
+//            printf("线程%d创建成功\n", j);
+//        }
     }
 
-    for (int i = 0; i < thread_number; ++i) {
-        int tmp1;
-        void *retval;
-        tmp1 = pthread_join(thread[i], &retval);
-        if (tmp1 != 0) {
-            printf("cannot join with thread1\n");
-        }
-    }
+//    for (int i = 0; i < thread_number; ++i) {
+//        int tmp1 = pthread_join(thread[i], NULL);
+//        if (tmp1 != 0) {
+//            printf("cannot join with thread1\n");
+//        }
+//    }
 
-    efree(pArray);
+//    pthread_exit((void*)0);
 }
 
 /* {{{ tools_functions[]

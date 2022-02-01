@@ -1,11 +1,11 @@
 <?php
-  $ac  = range(0, 10);
+  $ac  = range(0, 120000);
 
   $start = time();
-  $a = array_map(function($a){
-  sleep(1);
-  return $a;
-  },$ac);
+  $a = thread_run(function($a){
+  return $a+2;
+  },2,$ac);
+  print_r($a);
 
   $end = time();
   $ab = $end - $start;
