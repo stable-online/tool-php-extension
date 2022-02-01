@@ -1,12 +1,12 @@
 <?php
-  $ac  = range(0, 6);
+  $ac  = range(0, 10);
 
   $start = time();
-  $a = thread_run(function($a){
-  $a = $a +1;
+  $a = array_map(function($a){
+  sleep(1);
   return $a;
-  },6,$ac);
-  print_r($a);
+  },$ac);
+
   $end = time();
   $ab = $end - $start;
   print_r("\nthread_run={$ab}");

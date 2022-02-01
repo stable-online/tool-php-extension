@@ -387,7 +387,6 @@ zend_array *slice(zend_array *pArray, int number, int j) {
 PHP_FUNCTION (thread_run) {
     zval * arrays = NULL;
     int n_arrays = 0;
-    zval result;
 
     zend_long thread_number = 0;
 
@@ -416,12 +415,13 @@ PHP_FUNCTION (thread_run) {
     zend_array *pArray = Z_ARRVAL_P(arrays);
     int count = zend_array_count(pArray);
     array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
-    int number = ceil(count / thread_number);
 
+    int number = ceil((float)count / thread_number);
     pthread_t thread[thread_number - 1];
 
     for (int j = 0; j < thread_number; ++j) {
 
+        zval result;
         zend_array *arraysss = slice(pArray, number, j);
 
         struct parameter *parameter_info = emalloc(sizeof(struct parameter));
