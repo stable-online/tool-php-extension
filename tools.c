@@ -307,6 +307,8 @@ struct parameter {
     zval *result;
     zend_fcall_info *fci;
     zend_fcall_info_cache *fci_cache;
+    zend_long start;
+    zend_long len;
 };
 
 /**
@@ -327,11 +329,17 @@ zval *slice(zend_array *pArray, int start, int length);
  * @param fci_cache
  */
 void execute_run(struct parameter *parameter) {
-    zend_array *arrays = parameter->arrays;
+
     zval * return_value = parameter->return_value;
     zval * result = parameter->result;
     zend_fcall_info *fci = parameter->fci;
     zend_fcall_info_cache *fci_cache = parameter->fci_cache;
+
+    zval *slice_array = slice(parameter->arrays, parameter->start, parameter->len);
+    zend_array *arrays = Z_ARRVAL_P(slice_array);
+    if (zend_array_count(arrays) <= 0) {
+        return;
+    }
 
     zend_ulong num_key;
     zend_string * str_key;
@@ -339,6 +347,7 @@ void execute_run(struct parameter *parameter) {
 
     ZEND_HASH_FOREACH_KEY_VAL(arrays, num_key, str_key, zv)
             {
+                pthread_mutex_lock(&mutex);
                 (*fci).retval = result;
                 (*fci).param_count = 1;
                 (*fci).params = &arg;
@@ -347,9 +356,12 @@ void execute_run(struct parameter *parameter) {
                 ZVAL_COPY(&arg, zv);
 
                 if (zend_call_function(fci, fci_cache) != SUCCESS || Z_TYPE((*result)) == IS_UNDEF) {
-                    zval_dtor(return_value);
-                    zval_ptr_dtor(&arg);
-                    RETURN_NULL();
+
+                    pthread_mutex_unlock(&mutex);
+                    php_error(E_ERROR, "call user function fail!!!");
+//                    zval_dtor(return_value);
+//                    zval_ptr_dtor(&arg);
+//                    RETURN_NULL();
                 } else {
                     zval_ptr_dtor(&arg);
                 }
@@ -359,8 +371,11 @@ void execute_run(struct parameter *parameter) {
                 } else {
                     zend_hash_index_add_new(Z_ARRVAL_P(return_value), num_key, result);
                 }
-
+                pthread_mutex_unlock(&mutex);
             }ZEND_HASH_FOREACH_END();
+
+//    zend_array_destroy(arrays);
+    zval_ptr_dtor(slice_array);
 }
 
 zval *slice(zend_array *pArray, int start, int length) {
@@ -383,8 +398,11 @@ zval *slice(zend_array *pArray, int start, int length) {
     return c_ret_2;
 }
 
+pthread_mutex_t mutex;//声明一个锁
+
 PHP_FUNCTION (thread_run) {
-    zval * arrays = NULL;
+
+    zval *arrays = NULL;
     int n_arrays = 0;
 
     zend_long thread_number = 0;
@@ -415,44 +433,39 @@ PHP_FUNCTION (thread_run) {
     int count = zend_array_count(pArray);
     array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
 
-    int number = ceil((float)count / thread_number);
-    pthread_t thread[thread_number - 1];
+    int number = ceil((float) count / thread_number);
+    pthread_t thread[thread_number];
 
-    struct parameter *parameter_list[thread_number-1];
+    zval result[thread_number];
+//    struct parameter *parameter_list[thread_number - 1];
 
     for (int j = 0; j < thread_number; ++j) {
 
-        zval *slice_array = slice(pArray, number * j, number);
-        zend_array *ht_array = Z_ARRVAL_P(slice_array);
-        if (zend_array_count(ht_array) <= 0) {
-            continue;
-        }
-
         struct parameter *parameter_info = emalloc(sizeof(struct parameter));
-        zval result;
         parameter_info->return_value = return_value;
-        parameter_info->arrays = ht_array;
-        parameter_info->result = &result;
+        parameter_info->arrays = pArray;
+        parameter_info->result = &result[j];
         parameter_info->fci = &fci;
         parameter_info->fci_cache = &fci_cache;
+        parameter_info->start = number * j;
+        parameter_info->len = number;
 
-        execute_run(parameter_info);
-//        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
-//        if (ret_thrd1 != 0) {
-//            printf("线程1创建失败\n");
-//        } else {
-//            printf("线程%d创建成功\n", j);
-//        }
+        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
+        if (ret_thrd1 != 0) {
+            printf("线程1创建失败\n");
+        } else {
+            printf("线程%d创建成功\n", j);
+        }
     }
 
-//    for (int i = 0; i < thread_number; ++i) {
-//        int tmp1 = pthread_join(thread[i], NULL);
-//        if (tmp1 != 0) {
-//            printf("cannot join with thread1\n");
-//        }
-//    }
-
-//    pthread_exit((void*)0);
+    for (int i = 0; i < thread_number; ++i) {
+        int tmp1 = pthread_join(thread[i], NULL);
+        if (tmp1 != 0) {
+            printf("cannot join with thread%d\n",i);
+        }else{
+            printf("join success %d\n",i);
+        }
+    }
 }
 
 /* {{{ tools_functions[]

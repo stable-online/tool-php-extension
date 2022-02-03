@@ -4,51 +4,54 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-void test_function (void *ptr);
+pthread_mutex_t mutex;//声明一个锁
 
-void run(long number){
+void test_function(void *ptr);
+
+int main() {
 
     int tmp1, tmp2;
-    void *retval;
 
-    pthread_t thread1, thread2;
-    char *message1 = "thread1";
-    char *message2 = "thread2";
-
+    pthread_t thread[2];
     int ret_thrd1, ret_thrd2;
 
-    ret_thrd1 = pthread_create(&thread1, NULL, (void *) &test_function, (void *) message1);
-    ret_thrd2 = pthread_create(&thread2, NULL, (void *) &test_function, (void *) message2);
+    for (int i = 0; i < 2; ++i) {
 
-    if (ret_thrd1 != 0) {
-        printf("线程1创建失败\n");
-    } else {
-        printf("线程1创建成功\n");
+        char *message1 = "thread1";
+
+        ret_thrd1 = pthread_create(&thread[i], NULL, (void *) &test_function, (void *) message1);
+
+        if (ret_thrd1 != 0) {
+            printf("线程1创建失败\n");
+        } else {
+            printf("线程1创建成功\n");
+        }
     }
 
-    if (ret_thrd2 != 0) {
-        printf("线程2创建失败\n");
-    } else {
-        printf("线程2创建成功\n");
+
+    void *retval[2];
+
+    for (int i = 0; i < 2; ++i) {
+
+        tmp1 = pthread_join(thread[i], &retval[i]);
+        if (tmp1 != 0) {
+            printf("cannot join with thread1\n");
+        }
+        retval[i] = retval;
+        printf("thread1 end\n");
     }
 
-    tmp1 = pthread_join(thread1, &retval);
-    if (tmp1 != 0) {
-        printf("cannot join with thread1\n");
-    }
-    printf("thread1 end\n");
-
-    tmp2 = pthread_join(thread2, &retval);
-    if (tmp2 != 0) {
-        printf("cannot join with thread2\n");
-    }
-
-    printf("thread2 end\n");
+//    for (int j = 0; j < 2; ++j) {
+//
+//        pthread_exit(retval[j]);
+//    }
 }
 
 void test_function(void *ptr) {
-    for (int i=0; i<5; i++) {
-        printf("%s:%d\n", (char *)ptr, i);
-    }
+    pthread_mutex_lock(&mutex);
+    sleep(1);
+    printf("%s:%d\n", "marss", 1);
+    pthread_mutex_unlock(&mutex);
 }
