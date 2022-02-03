@@ -371,9 +371,10 @@ void execute_run(struct parameter *parameter) {
     zend_string *str_key;
     zval *zv, arg;
 
-//
+    pthread_mutex_lock(&mutex);
     ZEND_HASH_FOREACH_KEY_VAL(arrays, num_key, str_key, zv)
             {
+
                 (*fci).retval = &result;
                 (*fci).param_count = 1;
                 (*fci).params = &arg;
@@ -386,15 +387,15 @@ void execute_run(struct parameter *parameter) {
                 } else {
                     zval_ptr_dtor(&arg);
                 }
-//
-//                pthread_mutex_lock(&mutex);
-//                if (str_key) {
-//                    zend_hash_add_new(Z_ARRVAL_P(return_value), str_key, &result);
-//                } else {
-//                    zend_hash_index_add_new(Z_ARRVAL_P(return_value), num_key, &result);
-//                }
-//                pthread_mutex_unlock(&mutex);
+
+                if (str_key) {
+                    zend_hash_add_new(Z_ARRVAL_P(return_value), str_key, &result);
+                } else {
+                    php_printf("%d\n",num_key);
+                    zend_hash_index_add_new(Z_ARRVAL_P(return_value), num_key, &result);
+                }
             }ZEND_HASH_FOREACH_END();
+    pthread_mutex_unlock(&mutex);
 }
 
 zval * slice(zend_array *pArray, int start, int length) {
@@ -462,15 +463,16 @@ PHP_FUNCTION (thread_run) {
     }
 
     for (int j = 0; j < thread_number; ++j) {
-        struct parameter parameter_info;
-        parameter_info.return_value = return_value;
-        parameter_info.arrays = pArray;
-        parameter_info.fci = &fci;
-        parameter_info.fci_cache = &fci_cache;
-        parameter_info.start = number * j;
-        parameter_info.len = number;
+        struct parameter *parameter_info = (struct parameter *)emalloc(sizeof(struct parameter));
+        parameter_info->return_value = return_value;
+        parameter_info->arrays = pArray;
+        parameter_info->fci = &fci;
+        parameter_info->fci_cache = &fci_cache;
+        parameter_info->start = number * j;
+        parameter_info->len = number;
 
-        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) &parameter_info);
+//        php_printf("start:%d,end:%d\n",parameter_info.start,parameter_info.len);
+        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
         if (ret_thrd1 != 0) {
             printf("线程1创建失败\n");
         } else {

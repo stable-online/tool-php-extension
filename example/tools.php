@@ -3,7 +3,7 @@
 
   $a = thread_run(function($ab){
   return $ab;
-  },30000,$ac);
+  },300,$ac);
 
 print_r($a);
 die;
