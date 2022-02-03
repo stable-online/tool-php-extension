@@ -1,9 +1,9 @@
 <?php
-  $ac  = range(0, 300);
+  $ac  = range(0, 30000);
 
-  $a = thread_run(function($a){
-  return $a;
-  },2,$ac);
+  $a = thread_run(function($ab){
+  return $ab;
+  },30000,$ac);
 
 print_r($a);
 die;

@@ -106,6 +106,7 @@ ZEND_METHOD(String, lower) {
     zend_string * string = zval_get_string(pStruct);
     zval_dtor(pStruct);
 
+
     zend_string * pString = strtolower(string);
     zend_update_property_string(ce, getThis(), "property", strlen("property"), pString->val TSRMLS_CC);
 
@@ -320,6 +321,7 @@ void execute_run(struct parameter *parameter);
 
 zval *slice(zend_array *pArray, int start, int length);
 
+int numbers = 0 ;
 /**
  *
  * @param return_value
@@ -330,65 +332,81 @@ zval *slice(zend_array *pArray, int start, int length);
  */
 void execute_run(struct parameter *parameter) {
 
-    zval * return_value = parameter->return_value;
-    zval * result = parameter->result;
+    zval *return_value = parameter->return_value;
     zend_fcall_info *fci = parameter->fci;
     zend_fcall_info_cache *fci_cache = parameter->fci_cache;
 
+    pthread_mutex_lock(&mutex);
     zval *slice_array = slice(parameter->arrays, parameter->start, parameter->len);
+    pthread_mutex_unlock(&mutex);
     zend_array *arrays = Z_ARRVAL_P(slice_array);
     if (zend_array_count(arrays) <= 0) {
         return;
     }
 
-    zend_ulong num_key;
-    zend_string * str_key;
-    zval * zv, arg;
+//    zend_long key_number;
+//    zend_string *key_string;
+//    zval *value;
 
+//    ZEND_HASH_FOREACH_KEY_VAL(arrays , key_number, key_string, value)
+//            {
+//                pthread_mutex_lock(&mutex);
+//                php_printf("key:%d,value:%d\n" , key_number, Z_LVAL_P(value));
+//                pthread_mutex_unlock(&mutex);
+//            }
+//    ZEND_HASH_FOREACH_END();
+
+//    return;
+//    zend_long key_number;
+//    zend_string *key_string;
+//    zval *value;
+//    ZEND_HASH_FOREACH_KEY_VAL(arrays, key_number, key_string, value)
+//            {
+//                php_printf("key:%d,value:%d\n", key_number, 1);
+//            }
+//    ZEND_HASH_FOREACH_END();
+//    return;
+    zval result;
+    zend_ulong num_key;
+    zend_string *str_key;
+    zval *zv, arg;
+
+//
     ZEND_HASH_FOREACH_KEY_VAL(arrays, num_key, str_key, zv)
             {
-                pthread_mutex_lock(&mutex);
-                (*fci).retval = result;
+                (*fci).retval = &result;
                 (*fci).param_count = 1;
                 (*fci).params = &arg;
                 (*fci).no_separation = 0;
 
                 ZVAL_COPY(&arg, zv);
 
-                if (zend_call_function(fci, fci_cache) != SUCCESS || Z_TYPE((*result)) == IS_UNDEF) {
-
-                    pthread_mutex_unlock(&mutex);
+                if (zend_call_function(fci, fci_cache) != SUCCESS || Z_TYPE((result)) == IS_UNDEF) {
                     php_error(E_ERROR, "call user function fail!!!");
-//                    zval_dtor(return_value);
-//                    zval_ptr_dtor(&arg);
-//                    RETURN_NULL();
                 } else {
                     zval_ptr_dtor(&arg);
                 }
-
-                if (str_key) {
-                    zend_hash_add_new(Z_ARRVAL_P(return_value), str_key, result);
-                } else {
-                    zend_hash_index_add_new(Z_ARRVAL_P(return_value), num_key, result);
-                }
-                pthread_mutex_unlock(&mutex);
+//
+//                pthread_mutex_lock(&mutex);
+//                if (str_key) {
+//                    zend_hash_add_new(Z_ARRVAL_P(return_value), str_key, &result);
+//                } else {
+//                    zend_hash_index_add_new(Z_ARRVAL_P(return_value), num_key, &result);
+//                }
+//                pthread_mutex_unlock(&mutex);
             }ZEND_HASH_FOREACH_END();
-
-//    zend_array_destroy(arrays);
-    zval_ptr_dtor(slice_array);
 }
 
-zval *slice(zend_array *pArray, int start, int length) {
+zval * slice(zend_array *pArray, int start, int length) {
+    zval * c_ret_2 = (zval *)emalloc(sizeof(zval));
     zval array, param[4];
-
-    zval * c_ret_2 = emalloc(sizeof(zval) - 1);
     ZVAL_STRING(&array, "array_slice");
     ZVAL_ARR(&param[0], pArray);
     ZVAL_LONG(&param[1], start);
     ZVAL_LONG(&param[2], length);
     ZVAL_BOOL(&param[3], 1);
 
-    if (call_user_function(NULL, NULL, &array, c_ret_2, 4, param) == FAILURE) {
+    if (call_user_function(EG(function_table), NULL, &array TSRMLS_CC, c_ret_2, 4, param) == FAILURE) {
         php_printf("error{1}");
     }
 
@@ -399,6 +417,7 @@ zval *slice(zend_array *pArray, int start, int length) {
 }
 
 pthread_mutex_t mutex;//声明一个锁
+
 
 PHP_FUNCTION (thread_run) {
 
@@ -429,28 +448,29 @@ PHP_FUNCTION (thread_run) {
         return;
     }
 
-    zend_array *pArray = Z_ARRVAL_P(arrays);
-    int count = zend_array_count(pArray);
-    array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL(arrays[0])));
+    int count = 0;
+    array_init_size(return_value, count = zend_hash_num_elements(Z_ARRVAL(arrays[0])));
+
+    zend_array *pArray = Z_ARRVAL(arrays[0]);
 
     int number = ceil((float) count / thread_number);
     pthread_t thread[thread_number];
 
-    zval result[thread_number];
-//    struct parameter *parameter_list[thread_number - 1];
+    // 初始化互斥锁
+    if (pthread_mutex_init(&mutex, NULL) != 0) {
+        return;
+    }
 
     for (int j = 0; j < thread_number; ++j) {
+        struct parameter parameter_info;
+        parameter_info.return_value = return_value;
+        parameter_info.arrays = pArray;
+        parameter_info.fci = &fci;
+        parameter_info.fci_cache = &fci_cache;
+        parameter_info.start = number * j;
+        parameter_info.len = number;
 
-        struct parameter *parameter_info = emalloc(sizeof(struct parameter));
-        parameter_info->return_value = return_value;
-        parameter_info->arrays = pArray;
-        parameter_info->result = &result[j];
-        parameter_info->fci = &fci;
-        parameter_info->fci_cache = &fci_cache;
-        parameter_info->start = number * j;
-        parameter_info->len = number;
-
-        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
+        int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) &parameter_info);
         if (ret_thrd1 != 0) {
             printf("线程1创建失败\n");
         } else {
@@ -461,9 +481,9 @@ PHP_FUNCTION (thread_run) {
     for (int i = 0; i < thread_number; ++i) {
         int tmp1 = pthread_join(thread[i], NULL);
         if (tmp1 != 0) {
-            printf("cannot join with thread%d\n",i);
-        }else{
-            printf("join success %d\n",i);
+            printf("cannot join with thread%d\n", i);
+        } else {
+            printf("join success %d\n", i);
         }
     }
 }
