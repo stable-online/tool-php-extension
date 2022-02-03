@@ -344,28 +344,6 @@ void execute_run(struct parameter *parameter) {
         return;
     }
 
-//    zend_long key_number;
-//    zend_string *key_string;
-//    zval *value;
-
-//    ZEND_HASH_FOREACH_KEY_VAL(arrays , key_number, key_string, value)
-//            {
-//                pthread_mutex_lock(&mutex);
-//                php_printf("key:%d,value:%d\n" , key_number, Z_LVAL_P(value));
-//                pthread_mutex_unlock(&mutex);
-//            }
-//    ZEND_HASH_FOREACH_END();
-
-//    return;
-//    zend_long key_number;
-//    zend_string *key_string;
-//    zval *value;
-//    ZEND_HASH_FOREACH_KEY_VAL(arrays, key_number, key_string, value)
-//            {
-//                php_printf("key:%d,value:%d\n", key_number, 1);
-//            }
-//    ZEND_HASH_FOREACH_END();
-//    return;
     zval result;
     zend_ulong num_key;
     zend_string *str_key;
@@ -396,6 +374,7 @@ void execute_run(struct parameter *parameter) {
                 }
             }ZEND_HASH_FOREACH_END();
     pthread_mutex_unlock(&mutex);
+
 }
 
 zval * slice(zend_array *pArray, int start, int length) {
@@ -471,7 +450,6 @@ PHP_FUNCTION (thread_run) {
         parameter_info->start = number * j;
         parameter_info->len = number;
 
-//        php_printf("start:%d,end:%d\n",parameter_info.start,parameter_info.len);
         int ret_thrd1 = pthread_create(&thread[j], NULL, (void *) &execute_run, (void *) parameter_info);
         if (ret_thrd1 != 0) {
             printf("线程1创建失败\n");

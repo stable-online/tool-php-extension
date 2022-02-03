@@ -1,9 +1,10 @@
 <?php
-  $ac  = range(0, 30000);
+  $ac  = range(0, 3);
 
   $a = thread_run(function($ab){
+  sleep(1);
   return $ab;
-  },300,$ac);
+  },4,$ac);
 
 print_r($a);
 die;
