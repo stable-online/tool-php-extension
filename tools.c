@@ -470,7 +470,7 @@ PHP_FUNCTION (thread_run) {
         }
     }
     //计算
-    php_printf("number to calculation %d",number);
+    php_printf("number to calculation %d",numbers);
 }
 
 /* {{{ tools_functions[]
