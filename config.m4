@@ -59,5 +59,5 @@ if test "$PHP_TOOLS" != "no"; then
   dnl
   dnl PHP_SUBST(TOOLS_SHARED_LIBADD)
 
-  PHP_NEW_EXTENSION(tools, tools.c tool_thread.c, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
+  PHP_NEW_EXTENSION(tools, tools.c , $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 fi
