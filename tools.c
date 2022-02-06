@@ -354,11 +354,11 @@ void execute_run(struct parameter *parameter) {
     zend_string *str_key;
     zval *zv, arg;
 
-    pthread_mutex_lock(&mutex);
     ZEND_HASH_FOREACH_KEY_VAL(arrays, num_key, str_key, zv)
             {
 
-                (*fci).retval = &result;
+        numbers++;
+    /*            (*fci).retval = &result;
                 (*fci).param_count = 1;
                 (*fci).params = &arg;
                 (*fci).no_separation = 0;
@@ -377,9 +377,7 @@ void execute_run(struct parameter *parameter) {
                     php_printf("%d\n",num_key);
                     zend_hash_index_add_new(Z_ARRVAL_P(return_value), num_key, &result);
                 }
-            }ZEND_HASH_FOREACH_END();
-    pthread_mutex_unlock(&mutex);
-
+     */       }ZEND_HASH_FOREACH_END();
 }
 
 zval * slice(zend_array *pArray, int start, int length) {
