@@ -29,8 +29,13 @@
 #include "php_tools.h"
 #include "ext/standard/php_string.h"
 #include "tool_string.c"
-#include "tool_thread.c"
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
+pthread_mutex_t mutex;//声明一个锁
+
 /* {{{ PHP_INI
  */
 /* Remove comments and fill if you need to have entries in php.ini
