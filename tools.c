@@ -337,24 +337,24 @@ int numbers = 0 ;
  */
 void execute_run(struct parameter *parameter) {
 
-    zval *return_value = parameter->return_value;
-    zend_fcall_info *fci = parameter->fci;
-    zend_fcall_info_cache *fci_cache = parameter->fci_cache;
-
-    pthread_mutex_lock(&mutex);
-    zval *slice_array = slice(parameter->arrays, parameter->start, parameter->len);
-    pthread_mutex_unlock(&mutex);
-    zend_array *arrays = Z_ARRVAL_P(slice_array);
-    if (zend_array_count(arrays) <= 0) {
-        return;
-    }
+//    zval *return_value = parameter->return_value;
+//    zend_fcall_info *fci = parameter->fci;
+//    zend_fcall_info_cache *fci_cache = parameter->fci_cache;
+//
+//    pthread_mutex_lock(&mutex);
+//    zval *slice_array = slice(parameter->arrays, parameter->start, parameter->len);
+//    pthread_mutex_unlock(&mutex);
+//    zend_array *arrays = Z_ARRVAL_P(slice_array);
+//    if (zend_array_count(arrays) <= 0) {
+//        return;
+//    }
 
     zval result;
     zend_ulong num_key;
     zend_string *str_key;
     zval *zv, arg;
 
-    ZEND_HASH_FOREACH_KEY_VAL(arrays, num_key, str_key, zv)
+    ZEND_HASH_FOREACH_KEY_VAL(parameter->arrays, num_key, str_key, zv)
             {
 
         numbers++;
