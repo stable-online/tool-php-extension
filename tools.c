@@ -469,6 +469,8 @@ PHP_FUNCTION (thread_run) {
             printf("join success %d\n", i);
         }
     }
+    //计算
+    php_printf("number to calculation %d",number);
 }
 
 /* {{{ tools_functions[]
